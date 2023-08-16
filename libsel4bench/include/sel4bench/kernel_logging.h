@@ -25,7 +25,7 @@ typedef void *kernel_log_entry_t;
 /* Copies up to n entries from the kernel's internal log to the specified array,
  * returning the number of entries copied.
  */
-unsigned int kernel_logging_sync_log(kernel_log_entry_t log[], unsigned int n);
+unsigned int kernel_logging_sync_log(void *log_buffer, kernel_log_entry_t log[], unsigned int n);
 
 /* Returns the key field of a log entry. */
 static inline seL4_Word kernel_logging_entry_get_key(kernel_log_entry_t *entry)
@@ -74,10 +74,12 @@ static inline void kernel_logging_reset_log(void)
 /* Calls to kernel_logging_sync_log will extract entries created before
  * the most-recent call to this function. Call this function before calling
  * kernel_logging_sync_log. */
-static inline void kernel_logging_finalize_log(void)
+static inline unsigned long kernel_logging_finalize_log(void)
 {
 #ifdef CONFIG_ENABLE_BENCHMARKS
-    seL4_BenchmarkFinalizeLog();
+    return seL4_BenchmarkFinalizeLog();
+#else
+    return 0;
 #endif /* CONFIG_ENABLE_BENCHMARKS */
 }
 
